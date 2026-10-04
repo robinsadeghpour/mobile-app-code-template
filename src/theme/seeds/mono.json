@@ -1,0 +1,14 @@
+{
+  "name": "mono",
+  "character": "Stark white canvas, near-black ink, hairline dividers; the accent is ink itself.",
+  "light": {
+    "background": "oklch(1 0 0)",
+    "foreground": "oklch(0.145 0 0)"
+  },
+  "dark": {
+    "background": "oklch(0.145 0 0)",
+    "foreground": "oklch(0.985 0 0)"
+  },
+  "accent": "ink",
+  "tint": { "hue": 60, "chroma": 0.004 }
+}

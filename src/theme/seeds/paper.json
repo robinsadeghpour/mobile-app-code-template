@@ -1,0 +1,16 @@
+{
+  "name": "paper",
+  "character": "Warm cream canvas, espresso ink, one terracotta accent; editorial and unhurried.",
+  "light": {
+    "background": "oklch(0.985 0.008 85)",
+    "foreground": "oklch(0.22 0.02 60)"
+  },
+  "dark": {
+    "background": "oklch(0.2 0.012 60)",
+    "foreground": "oklch(0.96 0.008 85)"
+  },
+  "accent": {
+    "light": "oklch(0.55 0.15 40)",
+    "dark": "oklch(0.7 0.13 40)"
+  }
+}

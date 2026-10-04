@@ -1,0 +1,16 @@
+{
+  "name": "slate",
+  "character": "Cool near-white canvas, navy ink, one electric-blue accent; precise and technical.",
+  "light": {
+    "background": "oklch(0.985 0.003 250)",
+    "foreground": "oklch(0.2 0.02 265)"
+  },
+  "dark": {
+    "background": "oklch(0.17 0.02 265)",
+    "foreground": "oklch(0.96 0.005 250)"
+  },
+  "accent": {
+    "light": "oklch(0.52 0.19 262)",
+    "dark": "oklch(0.72 0.14 262)"
+  }
+}

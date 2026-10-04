@@ -1,0 +1,103 @@
+/* NativeExpress "mono" theme — Stark white canvas, near-black ink, hairline dividers; the accent is ink itself.
+   GENERATED from src/theme/seeds/mono.json by scripts/theme/generate-theme.mjs — do not hand-edit.
+   Imported after 'heroui-native/styles' in global.css — last declaration wins. */
+@layer theme {
+  :root {
+    @variant light {
+      --background: oklch(1 0 0);
+      --foreground: oklch(0.145 0 0);
+      --muted: oklch(0.66 0 0);
+
+      --surface: oklch(1 0 0);
+      --surface-foreground: oklch(0.145 0 0);
+      /* The seed's tint (hue 60, chroma 0.004) lives here and nowhere
+         else — chips, icon circles and bubbles pick it up; the canvas stays neutral. */
+      --surface-secondary: oklch(0.965 0.004 60);
+      --surface-secondary-foreground: oklch(0.145 0 0);
+      --surface-tertiary: oklch(0.945 0 0);
+      --surface-tertiary-foreground: oklch(0.145 0 0);
+
+      --overlay: oklch(1 0 0);
+      --overlay-foreground: oklch(0.145 0 0);
+      --backdrop: oklch(0 0 0 / 25%);
+
+      --default: oklch(0.965 0 0);
+      --default-foreground: oklch(0.145 0 0);
+
+      --accent: oklch(0.145 0 0);
+      --accent-foreground: oklch(1 0 0);
+
+      --field-background: oklch(0.975 0 0);
+      --field-foreground: oklch(0.145 0 0);
+      --field-placeholder: oklch(0.65 0 0);
+      --field-border: transparent;
+
+      --success: oklch(0.73 0.19 150.81);
+      --success-foreground: oklch(0.145 0 0);
+      --warning: oklch(0.78 0.16 72.33);
+      --warning-foreground: oklch(0.145 0 0);
+      --danger: oklch(0.6 0.21 25.74);
+      --danger-foreground: oklch(1 0 0);
+
+      --segment: oklch(1 0 0);
+      --segment-foreground: oklch(0.145 0 0);
+      --border: oklch(0.955 0 0);
+      --separator: oklch(0.9 0 0);
+      --focus: oklch(0.145 0 0);
+      --link: oklch(0.145 0 0);
+
+      --surface-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.04), 0 1px 2px 0 rgba(0, 0, 0, 0.06),
+        0 0 1px 0 rgba(0, 0, 0, 0.06);
+      --overlay-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.02), 0 -6px 12px 0 rgba(0, 0, 0, 0.01),
+        0 14px 28px 0 rgba(0, 0, 0, 0.03);
+      --field-shadow: 0 0 0 0 transparent inset;
+    }
+    @variant dark {
+      --background: oklch(0.145 0 0);
+      --foreground: oklch(0.985 0 0);
+      --muted: oklch(0.62 0 0);
+
+      --surface: oklch(0.185 0 0);
+      --surface-foreground: oklch(0.985 0 0);
+      /* The seed's tint (hue 60, chroma 0.004) lives here and nowhere
+         else — chips, icon circles and bubbles pick it up; the canvas stays neutral. */
+      --surface-secondary: oklch(0.225 0.004 60);
+      --surface-secondary-foreground: oklch(0.985 0 0);
+      --surface-tertiary: oklch(0.26 0 0);
+      --surface-tertiary-foreground: oklch(0.985 0 0);
+
+      --overlay: oklch(0.185 0 0);
+      --overlay-foreground: oklch(0.985 0 0);
+      --backdrop: oklch(0 0 0 / 50%);
+
+      --default: oklch(0.225 0 0);
+      --default-foreground: oklch(0.985 0 0);
+
+      --accent: oklch(0.985 0 0);
+      --accent-foreground: oklch(0.145 0 0);
+
+      --field-background: oklch(0.205 0 0);
+      --field-foreground: oklch(0.985 0 0);
+      --field-placeholder: oklch(0.62 0 0);
+      --field-border: transparent;
+
+      --success: oklch(0.73 0.19 150.81);
+      --success-foreground: oklch(0.145 0 0);
+      --warning: oklch(0.82 0.14 76.34);
+      --warning-foreground: oklch(0.145 0 0);
+      --danger: oklch(0.62 0.2 24.63);
+      --danger-foreground: oklch(0.985 0 0);
+
+      --segment: oklch(0.28 0 0);
+      --segment-foreground: oklch(0.985 0 0);
+      --border: oklch(0.24 0 0);
+      --separator: oklch(0.3 0 0);
+      --focus: oklch(0.985 0 0);
+      --link: oklch(0.985 0 0);
+
+      --surface-shadow: 0 0 0 0 transparent inset;
+      --overlay-shadow: 0 0 0 0 transparent inset;
+      --field-shadow: 0 0 0 0 transparent inset;
+    }
+  }
+}

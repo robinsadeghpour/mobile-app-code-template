@@ -1,0 +1,9 @@
+{
+  "adaptiveIcon": "./src/assets/images/adaptive-icon.png",
+  "splashIcon": "./src/assets/images/splash-icon.png",
+  "splashIconDark": "./src/assets/images/splash-icon.png",
+  "background": {
+    "light": "#ffffff",
+    "dark": "#0a0a0a"
+  }
+}
