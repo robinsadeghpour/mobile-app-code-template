@@ -1,53 +1,25 @@
+import { FunctionsHttpError } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 
 export class EdgeFunctionError extends Error {
-  status: number;
-  code: string;
-  body: unknown;
-
-  constructor(status: number, code: string, body: unknown = null) {
+  constructor(readonly code: string) {
     super(code);
-    this.status = status;
-    this.code = code;
-    this.body = body;
   }
 }
 
-const errorCodeOf = (body: unknown): string =>
+const errorCodeOf = (body: unknown) =>
   typeof body === 'object' && body !== null && 'code' in body && typeof body.code === 'string'
     ? body.code
     : 'unknown_error';
 
-export const edgeFunctionErrorFrom = async (response: { status: number; json: () => Promise<unknown> }) => {
-  const body = await response.json().catch(() => null);
-  return new EdgeFunctionError(response.status, errorCodeOf(body), body);
-};
+export async function callEdgeFunction(name: string, body?: Record<string, unknown>): Promise<unknown> {
+  const { data, error } = await supabase.functions.invoke<unknown>(name, { body });
 
-export type EdgeFunctionAction = 'not_configured' | 'generic';
-
-const ACTION_BY_CODE: Record<string, EdgeFunctionAction> = {
-  provider_not_configured: 'not_configured',
-};
-
-export const edgeFunctionAction = (error: unknown): EdgeFunctionAction =>
-  error instanceof EdgeFunctionError ? (ACTION_BY_CODE[error.code] ?? 'generic') : 'generic';
-
-export async function callEdgeFunction<T>(name: string, body?: unknown): Promise<T> {
-  const { data } = await supabase.auth.getSession();
-
-  const response = await fetch(`${process.env.EXPO_PUBLIC_SUPABASE_URL}/functions/v1/${name}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      apikey: `${process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY}`,
-      Authorization: `Bearer ${data.session?.access_token}`,
-    },
-    body: JSON.stringify(body),
-  });
-
-  if (!response.ok) {
-    throw await edgeFunctionErrorFrom(response);
+  if (error instanceof FunctionsHttpError) {
+    const response = error.context as Response;
+    throw new EdgeFunctionError(errorCodeOf(await response.json().catch(() => null)));
   }
+  if (error) throw error;
 
-  return response.json();
+  return data;
 }

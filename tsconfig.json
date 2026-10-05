@@ -19,14 +19,12 @@
     "jest.setup.ts",
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
-    "config.d.ts",
     "uniwind-types.d.ts"
   ],
   "exclude": [
     "node_modules",
     "*.config.js",
     "config.js",
-    ".eslintrc.js",
     "supabase/functions/"
   ]
 }

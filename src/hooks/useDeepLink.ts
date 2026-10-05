@@ -1,99 +1,71 @@
 import { useEffect, useRef } from 'react';
 import * as Linking from 'expo-linking';
-import { useRouter } from 'expo-router';
+import { router, type Href } from 'expo-router';
 import { useSetSession } from './auth/useSetSession';
 import { useSimpleToast } from '@/hooks/useSimpleToast';
-import { EMAIL_CONFIRMATION_PATH, parseSupabaseUrl } from '@/lib/supabase';
+import { EMAIL_CONFIRMATION_PATH } from '@/lib/supabase';
 import { logError } from '@/lib/logger';
 import { i18n } from '@/i18n';
 
 type AuthDeepLink =
-  | { kind: 'recovery'; access_token: string; refresh_token: string }
-  | { kind: 'confirmation'; access_token: string; refresh_token: string }
+  | { kind: 'session'; tokens: { access_token: string; refresh_token: string }; destination: Href }
   | { kind: 'error'; description: string | null }
   | { kind: 'other' };
 
+const RECOVERY_PATH_SEGMENT = 'update-password';
 // Linking.parse returns the path without its leading slash.
 const CONFIRMATION_PATH_SEGMENT = EMAIL_CONFIRMATION_PATH.replace(/^\//, '');
 
 const classifyAuthDeepLink = (rawUrl: string): AuthDeepLink => {
-  // Supabase mails the session in the URL fragment, which Linking.parse alone drops.
-  const { path, queryParams } = Linking.parse(parseSupabaseUrl(rawUrl));
+  // Supabase mails the session in the URL fragment, which Linking.parse drops.
+  const { path, queryParams } = Linking.parse(rawUrl.replace('#', '?'));
+  const { type, access_token, refresh_token, error, error_code, error_description } = queryParams ?? {};
 
-  const type = queryParams?.type;
-  const isAuthLink =
-    typeof type === 'string' || path?.includes('update-password') || path?.includes(CONFIRMATION_PATH_SEGMENT);
+  const isRecovery = type === 'recovery' || !!path?.includes(RECOVERY_PATH_SEGMENT);
+  const isConfirmation = type === 'signup' || !!path?.includes(CONFIRMATION_PATH_SEGMENT);
 
-  // Ordered before the token guard: an expired link carries no tokens and would fall through as 'other'.
-  if (isAuthLink && (queryParams?.error || queryParams?.error_code)) {
-    const description = queryParams.error_description;
-    return { kind: 'error', description: typeof description === 'string' ? description : null };
+  // Before the token guard: an expired link carries no tokens and would fall through as 'other'.
+  if ((typeof type === 'string' || isRecovery || isConfirmation) && (error || error_code)) {
+    return { kind: 'error', description: typeof error_description === 'string' ? error_description : null };
   }
-
-  const access_token = queryParams?.access_token;
-  const refresh_token = queryParams?.refresh_token;
-  if (typeof access_token !== 'string' || typeof refresh_token !== 'string') {
+  if (typeof access_token !== 'string' || typeof refresh_token !== 'string' || !(isRecovery || isConfirmation)) {
     return { kind: 'other' };
   }
-
-  if (type === 'recovery' || path?.includes('update-password')) {
-    return { kind: 'recovery', access_token, refresh_token };
-  }
-  if (type === 'signup' || path?.includes(CONFIRMATION_PATH_SEGMENT)) {
-    return { kind: 'confirmation', access_token, refresh_token };
-  }
-  return { kind: 'other' };
+  return {
+    kind: 'session',
+    tokens: { access_token, refresh_token },
+    destination: isRecovery ? '/update-password' : '/',
+  };
 };
 
 export const useDeepLink = () => {
   const { setSession } = useSetSession();
   const { showToast } = useSimpleToast();
-  const router = useRouter();
   const launchUrlHandled = useRef(false);
 
   useEffect(() => {
-    const handleDeepLink = (event: Linking.EventType) => {
-      const link = classifyAuthDeepLink(event.url);
+    const handleUrl = (url: string) => {
+      const link = classifyAuthDeepLink(url);
 
-      switch (link.kind) {
-        case 'recovery':
-          void setSession({
-            access_token: link.access_token,
-            refresh_token: link.refresh_token,
-            onSuccess: () => router.replace('/update-password'),
-          });
-          break;
-        case 'confirmation':
-          void setSession({
-            access_token: link.access_token,
-            refresh_token: link.refresh_token,
-            onSuccess: () => router.replace('/'),
-          });
-          break;
-        case 'error':
-          logError('Auth deep link error:', link.description);
-          showToast('error', i18n.t('auth.email_link_invalid'));
-          router.replace('/(public)/sign-in');
-          break;
-        case 'other':
-          break;
+      if (link.kind === 'session') {
+        void setSession(link.tokens, { onSuccess: () => router.replace(link.destination) });
+      } else if (link.kind === 'error') {
+        logError('Auth deep link error:', link.description);
+        showToast('error', i18n.t('auth.email_link_invalid'));
+        router.replace('/(public)/sign-in');
       }
     };
 
-    const subscription = Linking.addEventListener('url', handleDeepLink);
+    const subscription = Linking.addEventListener('url', ({ url }) => handleUrl(url));
 
-    // getInitialURL returns the launch URL for the life of the process, so every effect re-run would re-handle it.
+    // getInitialURL returns the launch URL for the life of the process, so an effect re-run would handle it again.
     if (!launchUrlHandled.current) {
       launchUrlHandled.current = true;
       void Linking.getInitialURL().then((url) => {
-        if (url) {
-          void handleDeepLink({ url } as Linking.EventType);
-        }
+        if (url) handleUrl(url);
       });
     }
 
-    return () => {
-      subscription.remove();
-    };
-  }, [setSession, router, showToast]);
+    return () => subscription.remove();
+  }, [setSession, showToast]);
 };

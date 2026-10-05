@@ -1,23 +1,17 @@
-import { Stack, Link } from 'expo-router';
-import { View, Text } from 'react-native';
-import { Button } from 'heroui-native';
+import { router } from 'expo-router';
+import { Text, View } from 'react-native';
+import { AppButton } from '@/components/AppButton';
+import { ScreenLayout } from '@/components/ScreenLayout';
 import { i18n } from '@/i18n';
 
 export default function NotFoundScreen() {
   return (
-    <>
-      <Stack.Screen options={{ title: i18n.t('common.not_found_header') }} />
-      <View className="bg-background pt-safe flex-1">
-        <View className="flex-1 items-center justify-center gap-4 px-6">
-          <Text className="text-foreground font-serif text-[32px]">404</Text>
-          <Text className="text-muted text-center text-[15px]">{i18n.t('common.not_found_body')}</Text>
-          <Link href="/" asChild>
-            <Button variant="primary" className="rounded-full">
-              <Button.Label>{i18n.t('common.not_found_cta')}</Button.Label>
-            </Button>
-          </Link>
-        </View>
+    <ScreenLayout>
+      <View className="items-center gap-4">
+        <Text className="text-foreground font-serif text-[32px]">404</Text>
+        <Text className="text-muted text-center text-[15px]">{i18n.t('common.not_found_body')}</Text>
+        <AppButton label={i18n.t('common.not_found_cta')} onPress={() => router.replace('/')} />
       </View>
-    </>
+    </ScreenLayout>
   );
 }

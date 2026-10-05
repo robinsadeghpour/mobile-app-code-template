@@ -1,19 +1,14 @@
 import { router } from 'expo-router';
-import { Alert, Text, View } from 'react-native';
-import { Button } from 'heroui-native';
-import { ContentContainer } from '@/components/ContentContainer';
+import { Alert, View } from 'react-native';
+import { AppButton } from '@/components/AppButton';
+import { ScreenLayout } from '@/components/ScreenLayout';
+import { ScreenTitle } from '@/components/ScreenTitle';
+import { ThemeSwitch } from '@/components/ThemeSwitch';
 import { useSession } from '@/hooks/useSession';
 import { useSignOut } from '@/hooks/auth/useSignOut';
 import { useDeleteAccount } from '@/hooks/auth/useDeleteAccount';
 import { i18n } from '@/i18n';
 
-/**
- * Account screen.
- *
- * Deleting the account is here because both stores require it to be reachable
- * from inside the app, and a link to a support address does not satisfy that.
- * It is the requirement most starters leave out.
- */
 export default function Profile() {
   const { user } = useSession();
   const { signOut, isLoading: isSigningOut } = useSignOut();
@@ -22,37 +17,35 @@ export default function Profile() {
   const confirmDelete = () =>
     Alert.alert(i18n.t('profile.delete_account'), i18n.t('profile.delete_account_confirm'), [
       { text: i18n.t('common.cancel'), style: 'cancel' },
-      {
-        text: i18n.t('profile.delete_account'),
-        style: 'destructive',
-        onPress: () => void deleteAccount(undefined),
-      },
+      { text: i18n.t('profile.delete_account'), style: 'destructive', onPress: () => void deleteAccount() },
     ]);
 
   return (
-    <View className="flex-1 justify-center">
-      <ContentContainer>
-        <View className="gap-6">
-          <View className="gap-1">
-            <Text className="text-foreground font-sans-semibold text-[22px]">
-              {i18n.t('profile.title')}
-            </Text>
-            <Text className="text-muted text-[15px]">{user?.email}</Text>
-          </View>
-
-          <View className="gap-3">
-            <Button variant="secondary" onPress={() => router.push('/(app)/change-password')}>
-              <Button.Label>{i18n.t('profile.change_password')}</Button.Label>
-            </Button>
-            <Button variant="secondary" onPress={() => void signOut(undefined)} isDisabled={isSigningOut}>
-              <Button.Label>{i18n.t('auth.sign_out')}</Button.Label>
-            </Button>
-            <Button variant="danger" onPress={confirmDelete} isDisabled={isDeleting}>
-              <Button.Label>{i18n.t('profile.delete_account')}</Button.Label>
-            </Button>
-          </View>
+    <ScreenLayout>
+      <View className="gap-6">
+        <ScreenTitle title={i18n.t('profile.title')} subtitle={user?.email} />
+        <ThemeSwitch />
+        <View className="gap-3">
+          <AppButton
+            variant="secondary"
+            label={i18n.t('profile.change_password')}
+            onPress={() => router.push('/(app)/change-password')}
+          />
+          <AppButton
+            variant="secondary"
+            label={i18n.t('auth.sign_out')}
+            isLoading={isSigningOut}
+            onPress={() => void signOut()}
+          />
+          {/* Both stores reject an app whose accounts cannot be deleted from inside it. */}
+          <AppButton
+            variant="danger"
+            label={i18n.t('profile.delete_account')}
+            isLoading={isDeleting}
+            onPress={confirmDelete}
+          />
         </View>
-      </ContentContainer>
-    </View>
+      </View>
+    </ScreenLayout>
   );
 }

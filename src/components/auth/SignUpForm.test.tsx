@@ -1,8 +1,8 @@
 import { createTestQueryClient } from '@/testing/createTestQueryClient';
+import { UiProvider } from '@/testing/UiProvider';
 import type { PropsWithChildren } from 'react';
 import { fireEvent, render, waitFor } from '@testing-library/react-native';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { HeroUINativeProvider } from 'heroui-native';
 import { router } from 'expo-router';
 
 import { supabase } from '@/lib/supabase';
@@ -27,7 +27,7 @@ const queryClient = createTestQueryClient({ defaultOptions: { mutations: { retry
 function Wrapper({ children }: PropsWithChildren) {
   return (
     <QueryClientProvider client={queryClient}>
-      <HeroUINativeProvider>{children}</HeroUINativeProvider>
+      <UiProvider>{children}</UiProvider>
     </QueryClientProvider>
   );
 }

@@ -26,7 +26,7 @@ async function signUpOnce() {
   const { result } = await renderHook(() => useSignUp(), { wrapper: Wrapper });
   const onSuccess = jest.fn();
   await act(async () => {
-    await result.current.signUp({ email: 'new@example.com', password: 'Str0ng!pass', onSuccess });
+    await result.current.signUp({ email: 'new@example.com', password: 'Str0ng!pass' }, { onSuccess });
   });
   return onSuccess;
 }
@@ -44,7 +44,7 @@ describe('useSignUp', () => {
 
     const onSuccess = await signUpOnce();
 
-    expect(onSuccess).toHaveBeenCalledWith({ needsEmailConfirmation: true });
+    expect(onSuccess.mock.calls[0][0]).toEqual({ needsEmailConfirmation: true });
   });
 
   it('points the confirmation email at a link that reopens the app', async () => {
@@ -70,6 +70,6 @@ describe('useSignUp', () => {
 
     const onSuccess = await signUpOnce();
 
-    expect(onSuccess).toHaveBeenCalledWith({ needsEmailConfirmation: false });
+    expect(onSuccess.mock.calls[0][0]).toEqual({ needsEmailConfirmation: false });
   });
 });

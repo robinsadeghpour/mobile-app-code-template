@@ -6,17 +6,15 @@
 @source '../node_modules/heroui-native/lib';
 
 @theme {
-  /* Geist — single font name per variable (RN has no fallbacks) */
+  /* One font name per variable: React Native has no fallback stacks. */
   --font-sans: 'Geist_400Regular';
   --font-sans-medium: 'Geist_500Medium';
   --font-sans-semibold: 'Geist_600SemiBold';
   --font-sans-bold: 'Geist_700Bold';
 
-  /* Instrument Serif — display tier ONLY (see DESIGN.md §3), never body/UI */
   --font-serif: 'InstrumentSerif_400Regular';
 
-  /* The one responsive breakpoint (see DESIGN.md §6). 700px sits in the empty
-     band between the widest phone in portrait (440) and the narrowest tablet
-     (iPad mini, 744) — stock `md:` at 768 would miss the mini entirely. */
+  /* 700px sits between the widest phone in portrait (440) and the narrowest tablet
+     (iPad mini, 744); stock `md:` at 768 would miss the mini. */
   --breakpoint-tablet: 700px;
 }
