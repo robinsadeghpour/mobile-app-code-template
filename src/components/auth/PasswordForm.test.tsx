@@ -1,8 +1,7 @@
-import type { PropsWithChildren } from 'react';
 import { fireEvent, render, waitFor } from '@testing-library/react-native';
-import { HeroUINativeProvider } from 'heroui-native';
 
 import { PasswordForm } from './PasswordForm';
+import { UiProvider } from '@/testing/UiProvider';
 import { i18n } from '@/i18n';
 
 const onSubmit = jest.fn();
@@ -10,10 +9,6 @@ const onBack = jest.fn();
 
 const PREFIX = 'auth-change-password';
 const STRONG_PASSWORD = 'Str0ng!pass';
-
-function Wrapper({ children }: PropsWithChildren) {
-  return <HeroUINativeProvider>{children}</HeroUINativeProvider>;
-}
 
 function renderForm(withCurrentPassword: boolean) {
   return render(
@@ -27,7 +22,7 @@ function renderForm(withCurrentPassword: boolean) {
       onBack={onBack}
       onSubmit={onSubmit}
     />,
-    { wrapper: Wrapper },
+    { wrapper: UiProvider },
   );
 }
 

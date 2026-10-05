@@ -1,6 +1,4 @@
-/* NativeExpress "mono" theme — Stark white canvas, near-black ink, hairline dividers; the accent is ink itself.
-   GENERATED from src/theme/seeds/mono.json by scripts/theme/generate-theme.mjs — do not hand-edit.
-   Imported after 'heroui-native/styles' in global.css — last declaration wins. */
+/* Imported after 'heroui-native/styles' in global.css: the last declaration wins. */
 @layer theme {
   :root {
     @variant light {

@@ -1,37 +1,25 @@
-import { View } from 'react-native';
-import { useRouter } from 'expo-router';
-import { GuestLayout } from '@/components/GuestLayout';
+import { router } from 'expo-router';
+import { ScreenLayout } from '@/components/ScreenLayout';
 import { PasswordForm } from '@/components/auth/PasswordForm';
 import { useUpdatePassword } from '@/hooks/auth/useUpdatePassword';
-import { type PasswordFormValues } from '@/lib/schema/passwordForm';
 import { i18n } from '@/i18n';
+
+const goToSignIn = () => router.replace('/(public)/sign-in');
 
 export default function UpdatePasswordScreen() {
   const { updatePassword, isLoading } = useUpdatePassword();
-  const router = useRouter();
-
-  const onSubmit = async ({ newPassword }: PasswordFormValues) => {
-    await updatePassword({
-      newPassword,
-      onSuccess: () => router.replace('/(public)/sign-in'),
-    });
-  };
-
-  const goBack = () => (router.canGoBack() ? router.back() : router.replace('/(public)/sign-in'));
 
   return (
-    <GuestLayout>
-      <View className="flex-1 justify-center">
-        <PasswordForm
-          testIDPrefix="auth-update-password"
-          title={i18n.t('auth.update_password_title')}
-          subtitle={i18n.t('auth.update_password_subtitle')}
-          submitLabel={i18n.t('auth.update_password_button')}
-          isSubmitting={isLoading}
-          onBack={goBack}
-          onSubmit={onSubmit}
-        />
-      </View>
-    </GuestLayout>
+    <ScreenLayout>
+      <PasswordForm
+        testIDPrefix="auth-update-password"
+        title={i18n.t('auth.update_password_title')}
+        subtitle={i18n.t('auth.update_password_subtitle')}
+        submitLabel={i18n.t('auth.update_password_button')}
+        isSubmitting={isLoading}
+        onBack={() => (router.canGoBack() ? router.back() : goToSignIn())}
+        onSubmit={({ newPassword }) => updatePassword({ newPassword }, { onSuccess: goToSignIn })}
+      />
+    </ScreenLayout>
   );
 }

@@ -5,7 +5,7 @@ import { EMAIL_CONFIRMATION_PATH } from '@/lib/supabase';
 import { useDeepLink } from './useDeepLink';
 
 const mockReplace = jest.fn();
-const mockSetSession = jest.fn(({ onSuccess }: { onSuccess?: () => void }) => onSuccess?.());
+const mockSetSession = jest.fn((_tokens: unknown, callbacks: { onSuccess: () => void }) => callbacks.onSuccess());
 const mockShowToast = jest.fn();
 const mockLogError = jest.fn();
 
@@ -25,16 +25,9 @@ jest.mock('expo-linking', () => ({
   createURL: jest.fn((path: string) => `myapp://${path}`),
 }));
 
-jest.mock('@/lib/secure-storage', () => ({
-  secureStorageAdapter: { getItem: async () => null, setItem: async () => {}, removeItem: async () => {} },
-}));
-jest.mock('@/lib/supabase', () => {
-  process.env.EXPO_PUBLIC_SUPABASE_URL = 'https://project.supabase.co';
-  process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY = 'anon-key';
-  return jest.requireActual('@/lib/supabase');
-});
+jest.mock('@/lib/supabase', () => ({ EMAIL_CONFIRMATION_PATH: '/auth/confirmed' }));
 
-jest.mock('expo-router', () => ({ useRouter: () => ({ replace: mockReplace }) }));
+jest.mock('expo-router', () => ({ router: { replace: (...args: unknown[]) => mockReplace(...args) } }));
 jest.mock('@/hooks/auth/useSetSession', () => ({
   useSetSession: () => ({ setSession: mockSetSession }),
 }));
@@ -61,7 +54,7 @@ describe('useDeepLink', () => {
   it('signs the user in and opens the update-password screen for a recovery link', async () => {
     await openLink('myapp://update-password#access_token=a&refresh_token=r&type=recovery');
 
-    expect(mockSetSession).toHaveBeenCalledWith(expect.objectContaining({ access_token: 'a', refresh_token: 'r' }));
+    expect(mockSetSession).toHaveBeenCalledWith({ access_token: 'a', refresh_token: 'r' }, expect.anything());
     expect(mockReplace).toHaveBeenCalledWith('/update-password');
   });
 
@@ -74,7 +67,7 @@ describe('useDeepLink', () => {
   it('signs the user in and opens the app for an email confirmation link', async () => {
     await openLink(`myapp://${EMAIL_CONFIRMATION_PATH}#access_token=a&refresh_token=r&type=signup`);
 
-    expect(mockSetSession).toHaveBeenCalledWith(expect.objectContaining({ access_token: 'a', refresh_token: 'r' }));
+    expect(mockSetSession).toHaveBeenCalledWith({ access_token: 'a', refresh_token: 'r' }, expect.anything());
     expect(mockReplace).toHaveBeenCalledWith('/');
   });
 
@@ -95,14 +88,14 @@ describe('useDeepLink', () => {
     expect(mockReplace).toHaveBeenCalledWith('/(public)/sign-in');
   });
 
-  it('acts on the launch URL once however often the hook re-renders', async () => {
+  it('subscribes once and acts on the launch URL once however often the hook re-renders', async () => {
     const { rerender } = await openLink(
       `myapp://${EMAIL_CONFIRMATION_PATH}#error=access_denied&error_code=otp_expired`,
     );
     await act(async () => rerender(undefined));
     await act(async () => rerender(undefined));
 
-    expect(Linking.addEventListener).toHaveBeenCalledTimes(3);
+    expect(Linking.addEventListener).toHaveBeenCalledTimes(1);
     expect(mockShowToast).toHaveBeenCalledTimes(1);
     expect(mockReplace).toHaveBeenCalledTimes(1);
   });

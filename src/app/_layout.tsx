@@ -29,12 +29,9 @@ export { ErrorBoundary } from 'expo-router';
 void SplashScreen.preventAutoHideAsync();
 
 function RootNavigator() {
-  // Below the QueryClient and session providers on purpose: this hook needs both.
-  // It is what turns the links in confirmation and password-reset mail into a
-  // session, so without it those two flows appear to do nothing.
   useDeepLink();
-  const { session, initialized } = useSession();
-  const [fontsLoaded] = useFonts({
+  const { session } = useSession();
+  const [fontsLoaded, fontError] = useFonts({
     Geist_400Regular,
     Geist_500Medium,
     Geist_600SemiBold,
@@ -42,13 +39,10 @@ function RootNavigator() {
     InstrumentSerif_400Regular,
   });
 
-  // Held until both are ready, so the first frame is the app rather than
-  // unstyled text on a white screen.
+  // A failed font load still hides the splash: system fonts beat a frozen launch screen.
   useEffect(() => {
-    if (initialized && fontsLoaded) {
-      void SplashScreen.hideAsync();
-    }
-  }, [initialized, fontsLoaded]);
+    if (fontsLoaded || fontError) void SplashScreen.hideAsync();
+  }, [fontsLoaded, fontError]);
 
   return (
     <Stack screenOptions={{ headerShown: false }}>

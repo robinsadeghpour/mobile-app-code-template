@@ -37,34 +37,26 @@ describe('useAuthMutation', () => {
     const onSuccess = jest.fn();
 
     await act(async () => {
-      await result.current.run({ email: 'new@example.com', onSuccess });
+      await result.current.run({ email: 'new@example.com' }, { onSuccess });
     });
 
     expect(mockShowToast).toHaveBeenCalledWith('success', i18n.t('auth.sign_up_success'));
-    expect(onSuccess).toHaveBeenCalledWith('new@example.com');
+    expect(onSuccess.mock.calls[0][0]).toBe('new@example.com');
   });
 
-  it('reports success and failure through the return value', async () => {
-    const { result } = await renderHook(
-      () => ({
-        ok: useAuthMutation({ mutationFn: () => Promise.resolve(), logLabel: 'ok:' }),
-        bad: useAuthMutation({ mutationFn: () => Promise.reject(new Error('no')), logLabel: 'bad:' }),
-      }),
+  it('keeps run stable across renders so effects can depend on it', async () => {
+    const { result, rerender } = await renderHook(
+      () => useAuthMutation({ mutationFn: () => Promise.resolve(), logLabel: 'test:' }),
       { wrapper: Wrapper },
     );
+    const firstRun = result.current.run;
 
-    let succeeded: boolean | undefined;
-    let failed: boolean | undefined;
-    await act(async () => {
-      succeeded = await result.current.ok.run();
-      failed = await result.current.bad.run();
-    });
+    await act(async () => rerender(undefined));
 
-    expect(succeeded).toBe(true);
-    expect(failed).toBe(false);
+    expect(result.current.run).toBe(firstRun);
   });
 
-  it('logs the failure, toasts the error key and hands the error to the caller', async () => {
+  it('logs the failure, toasts the error key and hands the error to the caller without rejecting', async () => {
     const failure = new Error('supabase said no');
     const { result } = await renderHook(
       () =>
@@ -78,11 +70,11 @@ describe('useAuthMutation', () => {
     const onError = jest.fn();
 
     await act(async () => {
-      await result.current.run({ onError });
+      await result.current.run(undefined, { onError });
     });
 
     expect(logErrorMock).toHaveBeenCalledWith('test:', failure);
     expect(mockShowToast).toHaveBeenCalledWith('error', i18n.t('auth.sign_up_failed'));
-    expect(onError).toHaveBeenCalledWith(failure);
+    expect(onError.mock.calls[0][0]).toBe(failure);
   });
 });

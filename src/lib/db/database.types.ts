@@ -1,13 +1,5 @@
-/**
- * The database, as TypeScript sees it.
- *
- * Regenerate this whenever you change the schema, rather than editing it:
- *
- *   npx supabase gen types typescript --project-id <your-id> > src/lib/db/database.types.ts
- *
- * Hand-edited types drift from the database silently, and the first you hear
- * of it is a query that compiles and returns undefined.
- */
+// Generated. Regenerate after every schema change instead of editing:
+//   npx supabase gen types typescript --project-id <your-id> > src/lib/db/database.types.ts
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export type Database = {

@@ -12,9 +12,7 @@ export const useSignOut = () => {
     },
     logLabel: 'Sign out error:',
     errorToastKey: 'auth.sign_out_failed',
-    afterSuccess: () => {
-      queryClient.clear();
-    },
+    afterSuccess: () => queryClient.clear(),
   });
 
   return { isLoading, signOut: run };

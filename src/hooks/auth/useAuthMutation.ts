@@ -1,28 +1,18 @@
-import { useMutation } from '@tanstack/react-query';
+import { useCallback } from 'react';
+import { type MutateOptions, useMutation } from '@tanstack/react-query';
 import { useSimpleToast } from '@/hooks/useSimpleToast';
 import { logError } from '@/lib/logger';
 import { i18n } from '@/i18n';
 
-export type AuthMutationCallbacks<TResult = void> = {
-  onSuccess?: (result: TResult) => void;
-  onError?: (error: Error) => void;
-};
-
-type AuthMutationConfig<TVariables extends object, TResult> = {
+type AuthMutationConfig<TVariables, TResult> = {
   mutationFn: (variables: TVariables) => Promise<TResult>;
   logLabel: string;
   successToastKey?: string;
   errorToastKey?: string | ((error: Error) => string);
-  // unknown, not void, so afterSuccess can return another hook's run() promise.
-  afterSuccess?: (result: TResult) => unknown;
+  afterSuccess?: (result: TResult) => void | Promise<void>;
 };
 
-// Reversed on purpose: only a TVariables of exactly `object` makes the argument optional.
-type RunArgs<TVariables extends object, TResult> = object extends TVariables
-  ? [options?: AuthMutationCallbacks<TResult>]
-  : [options: TVariables & AuthMutationCallbacks<TResult>];
-
-export const useAuthMutation = <TVariables extends object = object, TResult = void>({
+export const useAuthMutation = <TVariables = void, TResult = void>({
   mutationFn,
   logLabel,
   successToastKey,
@@ -31,7 +21,7 @@ export const useAuthMutation = <TVariables extends object = object, TResult = vo
 }: AuthMutationConfig<TVariables, TResult>) => {
   const { showToast } = useSimpleToast();
 
-  const mutation = useMutation({
+  const { mutateAsync, isPending } = useMutation({
     mutationFn,
     onSuccess: async (result) => {
       if (successToastKey) showToast('success', i18n.t(successToastKey));
@@ -44,19 +34,13 @@ export const useAuthMutation = <TVariables extends object = object, TResult = vo
     },
   });
 
-  // Never rejects; the boolean tells a caller whether to clean up.
-  const run = async (...[options]: RunArgs<TVariables, TResult>): Promise<boolean> => {
-    const { onSuccess, onError, ...variables } = options ?? ({} as TVariables & AuthMutationCallbacks<TResult>);
-    try {
-      // TS cannot narrow the rest destructure back to TVariables; only the two callback keys were removed.
-      const result = await mutation.mutateAsync(variables as unknown as TVariables);
-      onSuccess?.(result);
-      return true;
-    } catch (error) {
-      onError?.(error as Error);
-      return false;
-    }
-  };
+  // Never rejects: onError above is the handling, so callers need no try/catch.
+  const run = useCallback(
+    async (variables: TVariables, callbacks?: MutateOptions<TResult, Error, TVariables>) => {
+      await mutateAsync(variables, callbacks).catch(() => {});
+    },
+    [mutateAsync],
+  );
 
-  return { run, isLoading: mutation.isPending };
+  return { run, isLoading: isPending };
 };

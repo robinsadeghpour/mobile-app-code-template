@@ -1,5 +1,4 @@
 import * as SecureStore from 'expo-secure-store';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // SecureStore caps a value at 2048 bytes, so a value is split: the base key holds the count, chunk i lives at `key.i`.
 const CHUNK_SIZE = 1800;
@@ -40,7 +39,7 @@ const getItem = async (key: string): Promise<string | null> => {
   const count = await getChunkCount(key);
 
   if (count === 0) {
-    return migrateFromAsyncStorage(key);
+    return null;
   }
 
   const chunks = await Promise.all(
@@ -58,18 +57,6 @@ const removeItem = async (key: string): Promise<void> => {
   const count = await getChunkCount(key);
   await removeChunks(key, 0, count);
   await SecureStore.deleteItemAsync(key);
-};
-
-// Only apps upgraded from 1.x hold a session in AsyncStorage, so this path can go in the next major.
-const migrateFromAsyncStorage = async (key: string): Promise<string | null> => {
-  const legacyValue = await AsyncStorage.getItem(key);
-  if (legacyValue === null) {
-    return null;
-  }
-
-  await setItem(key, legacyValue);
-  await AsyncStorage.removeItem(key);
-  return legacyValue;
 };
 
 export const secureStorageAdapter = {
