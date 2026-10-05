@@ -1,0 +1,37 @@
+name: Bug report
+description: Something in the template does not work as the README says it does.
+labels: [bug]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what you got instead. Paste any error text in full.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Starting from a fresh clone if you can.
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      multiple: true
+      options:
+        - iOS
+        - Android
+        - Neither (install, typecheck, lint or tests)
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: The template tag or commit you cloned, and your Node version.
+      placeholder: v1.0.0, Node 22
+    validations:
+      required: true

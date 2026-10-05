@@ -11,14 +11,14 @@ that runs on both stores. Clone it and start describing what you want.
 [![Expo](https://img.shields.io/badge/Expo-SDK%2057-000020?style=flat-square&logo=expo&logoColor=white)](https://expo.dev)
 [![React Native](https://img.shields.io/badge/React%20Native-0.8x-20232a?style=flat-square&logo=react)](https://reactnative.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
-[![Tests](https://img.shields.io/badge/tests-43%20passing-5fd38d?style=flat-square)](#checks)
+[![CI](https://img.shields.io/github/actions/workflow/status/robinsadeghpour/mobile-app-code-template/ci.yml?branch=main&style=flat-square&label=checks)](https://github.com/robinsadeghpour/mobile-app-code-template/actions/workflows/ci.yml)
 
 [Quickstart](#quickstart) ·
 [Set it up with an agent](#set-it-up-with-an-agent) ·
 [What's inside](#whats-inside) ·
 [Use it from Claude or ChatGPT](#use-it-from-claude-or-chatgpt)
 
-<img src=".github/assets/starter.gif" alt="Clone the template, install, and 43 tests pass" width="860">
+<img src=".github/assets/starter.gif" alt="Clone the template, install, and the tests pass" width="860">
 
 </div>
 
@@ -58,6 +58,7 @@ Push the schema and run it:
 ```bash
 npx supabase link --project-ref <your-project-ref>
 npx supabase db push
+npx supabase functions deploy delete-account
 yarn ios          # or: yarn android
 ```
 
@@ -98,9 +99,9 @@ Work in this order and do not skip ahead.
    Do not run the app yet.
 
 3. PROVE IT IS INTACT BEFORE CHANGING ANYTHING
-   Run `yarn typecheck` and `yarn test`. Both should pass, with 43 tests in 11
-   suites. If a test fails on this first run, re-run it once before you
-   investigate, because the suites are slow and time out on a cold cache.
+   Run `yarn typecheck` and `yarn test`. Both should pass. If a test fails on
+   this first run, re-run it once before you investigate, because the suites
+   are slow and can time out on a cold cache.
    Do not continue to step 4 until these pass.
 
 4. ASK ME FOR THE THINGS YOU CANNOT KNOW
@@ -117,9 +118,11 @@ Work in this order and do not skip ahead.
    me exactly where to find the project URL and the anon key
    (Settings -> API). Have me paste them, then write them into .env yourself.
    Never print the keys back to me in full.
-   Then link the project and push the schema:
+   Then link the project, push the schema and deploy the function that
+   deletes accounts:
      npx supabase link --project-ref <ref>
      npx supabase db push
+     npx supabase functions deploy delete-account
    Confirm afterwards that the `profiles` table exists and has row level
    security enabled. If it does not, stop and tell me, because every later
    problem will trace back to this.
@@ -150,9 +153,9 @@ Work in this order and do not skip ahead.
    Tell me what works, what does not, and what I should decide next. Do not
    add features. Do not install packages I did not ask for.
 
-Before writing any code of your own in this project, read AGENTS.md and
-CLAUDE.md in the repo root. They describe the conventions this codebase
-already uses. Match them rather than introducing your own.
+Before writing any code of your own in this project, read AGENTS.md in the
+repo root. It describes the conventions this codebase already uses. Match them
+rather than introducing your own.
 ```
 
 </details>
@@ -165,11 +168,11 @@ already uses. Match them rather than introducing your own.
 | **Deep links** | The links in confirmation and reset mail open the app and become a session. This is the part that usually silently doesn't work |
 | **Account deletion** | From inside the app, a real delete rather than a deactivate. Both stores require it and most templates skip it |
 | **Database** | Supabase with a `profiles` table, created by a trigger on signup, and row level security policies. An actual policy, not a query that happens to filter |
-| **Storage** | An avatars bucket with per-folder policies |
-| **Theming** | Light and dark from one seed colour. Change the seed, the whole app changes |
+| **Storage** | An avatars bucket where each user can write only their own file |
+| **Theming** | Light, dark or system, switched from the profile screen. Every colour is a token in one CSS file |
 | **Navigation** | Expo Router, with a tab layout and protected routes |
 | **Types** | TypeScript throughout, with database types generated from the schema |
-| **Tests** | 43, across 11 suites, covering the auth flows and session handling |
+| **Tests** | Jest suites covering the auth flows, deep links and session handling, run in CI on every pull request |
 | **Agent docs** | `AGENTS.md` and `CLAUDE.md`, so an agent working in the repo already knows its conventions |
 
 ### What it deliberately leaves out
@@ -194,14 +197,15 @@ src/
   app/              Expo Router. A file here is a screen.
     (app)/(tabs)/   Signed in: home and profile
     (public)/       Signed out: welcome, sign in, sign up
-  components/       Shared UI, grouped by the screen that owns it
+  components/       Screen layout, title, button, and the auth forms
   hooks/
-    auth/           One hook per auth action, each with its own test
+    auth/           One hook per auth action
   provider/         SessionProvider, ThemeProvider
   lib/              Supabase client, storage helpers, logger
-  theme/            Seed colour in, light and dark palettes out
+  theme/            Light and dark colour tokens
 supabase/
   migrations/       Schema, RLS policies, signup trigger, avatars bucket
+  functions/        The edge function that deletes an account
 config.js           App name, scheme, bundle id. The only file you must edit
 ```
 
@@ -213,16 +217,16 @@ config.js           App name, scheme, bundle id. The only file you must edit
 | `yarn ios` / `yarn android` | Build and run natively |
 | `yarn typecheck` | `tsc --noEmit` |
 | `yarn lint` | ESLint over `src` and edge functions |
-| `yarn test` | Jest, 43 tests |
-| `yarn format` | Prettier |
+| `yarn test` | Jest |
+| `yarn format` | Prettier. `yarn format:check` only reports |
 
 ### Checks
 
 ```bash
-yarn typecheck && yarn lint && yarn test
+yarn typecheck && yarn lint && yarn test && yarn format:check
 ```
 
-All three pass on a fresh clone. The test suites are slow, and on a cold cache a
+All four pass on a fresh clone. The test suites are slow, and on a cold cache a
 first run can time out; re-run before investigating.
 
 ## Use it from Claude or ChatGPT
@@ -277,10 +281,19 @@ Supabase under **Authentication → URL Configuration**. Fix that before touchin
 any code.
 </details>
 
+## Versions and support
+
+Releases are tagged `vX.Y.Z`, and `package.json` carries the same number, so a
+clone records which release it started from. Each release tracks one Expo SDK,
+currently 57, and the release notes say when that changes.
+
+Only the latest release gets fixes. Support is best-effort, through issues.
+
 ## Contributing
 
-Issues and pull requests are welcome. Please run `yarn typecheck && yarn lint &&
-yarn test` before opening one, and keep to the conventions in `AGENTS.md`.
+Issues and pull requests are welcome. [CONTRIBUTING.md](CONTRIBUTING.md) has the
+setup, the checks to run and what gets merged. Report security problems
+privately, as [SECURITY.md](SECURITY.md) describes.
 
 ## Licence
 
