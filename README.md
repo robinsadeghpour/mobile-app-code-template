@@ -1,99 +1,288 @@
-# Mobile app code template
+<div align="center">
 
-Everything your app needs before it's an app. Sign-in, a real database, and a
-working build for iOS and Android. Clone it and start describing what you want.
+# Mobile App Code Template
 
-Built with Expo and React Native, in TypeScript.
+**Everything your app needs before it's an app.**
 
-## What's already done
+Sign-in that works, a real database with real row level security, and a build
+that runs on both stores. Clone it and start describing what you want.
 
-**Accounts that work.** Sign up, sign in, email confirmation, password reset,
-change password, sign out. The links in confirmation and reset mail open the app
-and become a session, which is the part that usually silently doesn't work.
+[![License: MIT](https://img.shields.io/badge/License-MIT-df7228.svg?style=flat-square)](LICENSE)
+[![Expo](https://img.shields.io/badge/Expo-SDK%2057-000020?style=flat-square&logo=expo&logoColor=white)](https://expo.dev)
+[![React Native](https://img.shields.io/badge/React%20Native-0.8x-20232a?style=flat-square&logo=react)](https://reactnative.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Tests](https://img.shields.io/badge/tests-43%20passing-5fd38d?style=flat-square)](#checks)
 
-**A real database behind it.** Supabase with a `profiles` table, created
-automatically when someone signs up, and row level security so a user can read
-and write only their own row. Not a query that happens to filter. An actual
-policy.
+[Quickstart](#quickstart) ·
+[Set it up with an agent](#set-it-up-with-an-agent) ·
+[What's inside](#whats-inside) ·
+[Use it from Claude or ChatGPT](#use-it-from-claude-or-chatgpt)
 
-**Account deletion.** From inside the app, deleting rather than deactivating.
-Both stores require this and most templates skip it.
+<img src=".github/assets/starter.gif" alt="Clone the template, install, and 43 tests pass" width="860">
 
-**Theming.** Light and dark generated from one seed colour. Change the seed,
-the whole app changes.
+</div>
 
-**The build.** iOS and Android, EAS profiles for development, preview and
-production.
+---
 
-**Tests.** 43 of them, covering the auth flows and the session handling.
+## Why this exists
 
-## Getting started
+Every app starts with the same three weeks. Accounts, a database, a theme, a
+build that a store will accept. None of it is the thing you wanted to make, and
+all of it has to be right before anyone can use what you did want to make.
+
+This is those three weeks, done, under MIT. It is deliberately not a kitchen
+sink: [what it leaves out](#what-it-deliberately-leaves-out) is as considered as
+what it includes.
+
+## Quickstart
+
+> **Prerequisites.** Node 20+, Yarn, and a free [Supabase](https://supabase.com)
+> account. To run the app on a simulator you also need Xcode (iOS) or Android
+> Studio (Android). Cloning, typechecking and the tests need neither.
 
 ```bash
-git clone https://github.com/robinsadeghpour/mobile-app-code-template.git my-app
+git clone https://github.com/robinsadeghpour/mobile-app-code-template my-app
 cd my-app
 yarn install
 cp .env.example .env
 ```
 
-Create a free Supabase project at supabase.com. It takes about a minute. From
-**Settings → API**, copy the project URL and the anon key into `.env`.
+Create a project at [supabase.com](https://supabase.com), then from
+**Settings → API** copy the project URL and the anon key into `.env`.
 
-Both are safe in the client. The anon key is public by design; row level
+Both are safe on the client. The anon key is public by design; row level
 security is what protects the data, not the key.
 
-Then push the schema:
+Push the schema and run it:
 
 ```bash
 npx supabase link --project-ref <your-project-ref>
 npx supabase db push
+yarn ios          # or: yarn android
 ```
 
-And run it:
+Then open `config.js` and set your app name, scheme, bundle identifier and
+package name.
+
+> [!WARNING]
+> `iosBundleIdentifier` and `androidPackageName` are **permanent** once an app is
+> published. You cannot rename them later, only ship a new listing. Decide them
+> before your first submission, not after.
+
+## Set it up with an agent
+
+If you'd rather not do the above by hand, paste this into Claude, Claude Code,
+Cursor, or any agent with terminal access. It takes you from nothing to a
+running app and stops to ask you only for the things it cannot know.
+
+<details open>
+<summary><b>Copy this prompt</b></summary>
+
+```text
+You are setting up a React Native app for me from a template. I may be new to
+mobile development, so explain each step in one sentence before you run it, and
+stop when you need something only I can give you.
+
+The template is https://github.com/robinsadeghpour/mobile-app-code-template
+
+Work in this order and do not skip ahead.
+
+1. CHECK THE MACHINE
+   Report the versions of node, yarn and git. Node must be 20 or higher.
+   Check whether Xcode (macOS) or Android Studio is installed, and tell me
+   plainly which platforms I can run on. If neither is installed, say so and
+   carry on: everything except running the app still works.
+
+2. GET THE CODE
+   Clone the template into a folder named after my app, then run `yarn install`.
+   Do not run the app yet.
+
+3. PROVE IT IS INTACT BEFORE CHANGING ANYTHING
+   Run `yarn typecheck` and `yarn test`. Both should pass, with 43 tests in 11
+   suites. If a test fails on this first run, re-run it once before you
+   investigate, because the suites are slow and time out on a cold cache.
+   Do not continue to step 4 until these pass.
+
+4. ASK ME FOR THE THINGS YOU CANNOT KNOW
+   Stop and ask me for all of these in one message:
+     - The app's display name
+     - A URL scheme: lowercase, no spaces, unique to this app
+     - A bundle identifier, like com.mycompany.myapp. Tell me this is
+       permanent once published and cannot be changed later
+     - Whether I already have a Supabase project, or need to make one
+   Wait for my answer.
+
+5. SUPABASE
+   If I need a project, walk me through creating one at supabase.com and tell
+   me exactly where to find the project URL and the anon key
+   (Settings -> API). Have me paste them, then write them into .env yourself.
+   Never print the keys back to me in full.
+   Then link the project and push the schema:
+     npx supabase link --project-ref <ref>
+     npx supabase db push
+   Confirm afterwards that the `profiles` table exists and has row level
+   security enabled. If it does not, stop and tell me, because every later
+   problem will trace back to this.
+
+6. CONFIGURE THE APP
+   Edit config.js with the answers from step 4. Change nothing else in it.
+   Re-run `yarn typecheck` to confirm the edits are clean.
+
+7. RUN IT
+   Run `yarn ios` or `yarn android` depending on what step 1 found. The first
+   build compiles native code and takes a long time; tell me that before you
+   start it so I do not think it has hung.
+
+8. TEST THE PART THAT IS USUALLY BROKEN
+   Walk me through, one at a time, and confirm each before the next:
+     a. Sign up with a real address I can open
+     b. Open the confirmation link from the email on the same device, and
+        confirm the app opens and I end up signed in
+     c. Sign out, then sign back in
+     d. Request a password reset and complete it from the email link
+     e. Delete the account from the profile screen
+   Step b and d are deep links, and they are the most common thing to be
+   silently broken. If either does nothing, check the `scheme` in config.js
+   matches the redirect URLs configured in Supabase, and say so rather than
+   guessing at the code.
+
+9. REPORT
+   Tell me what works, what does not, and what I should decide next. Do not
+   add features. Do not install packages I did not ask for.
+
+Before writing any code of your own in this project, read AGENTS.md and
+CLAUDE.md in the repo root. They describe the conventions this codebase
+already uses. Match them rather than introducing your own.
+```
+
+</details>
+
+## What's inside
+
+| | |
+|---|---|
+| **Accounts** | Sign up, sign in, email confirmation, password reset, change password, sign out |
+| **Deep links** | The links in confirmation and reset mail open the app and become a session. This is the part that usually silently doesn't work |
+| **Account deletion** | From inside the app, a real delete rather than a deactivate. Both stores require it and most templates skip it |
+| **Database** | Supabase with a `profiles` table, created by a trigger on signup, and row level security policies. An actual policy, not a query that happens to filter |
+| **Storage** | An avatars bucket with per-folder policies |
+| **Theming** | Light and dark from one seed colour. Change the seed, the whole app changes |
+| **Navigation** | Expo Router, with a tab layout and protected routes |
+| **Types** | TypeScript throughout, with database types generated from the schema |
+| **Tests** | 43, across 11 suites, covering the auth flows and session handling |
+| **Agent docs** | `AGENTS.md` and `CLAUDE.md`, so an agent working in the repo already knows its conventions |
+
+### What it deliberately leaves out
+
+- **Social sign in.** Each provider needs its own console setup and redirect
+  handling, and Apple's becomes mandatory the moment you offer any other one
+- **Payments and paywalls.** Entitlement belongs on a server, and that decision
+  deserves to be made on purpose
+- **Push notifications.** Needs a paid Apple account, a certificate, and a real
+  device before anything can be tested
+- **Analytics and crash reporting.** Vendor choices that are easier to add than
+  to remove
+
+Three of those four cannot even be tested without a paid developer account. They
+are left out so you add them deliberately, not so you discover them halfway
+through.
+
+## Project structure
+
+```
+src/
+  app/              Expo Router. A file here is a screen.
+    (app)/(tabs)/   Signed in: home and profile
+    (public)/       Signed out: welcome, sign in, sign up
+  components/       Shared UI, grouped by the screen that owns it
+  hooks/
+    auth/           One hook per auth action, each with its own test
+  provider/         SessionProvider, ThemeProvider
+  lib/              Supabase client, storage helpers, logger
+  theme/            Seed colour in, light and dark palettes out
+supabase/
+  migrations/       Schema, RLS policies, signup trigger, avatars bucket
+config.js           App name, scheme, bundle id. The only file you must edit
+```
+
+## Scripts
+
+| Command | What it does |
+|---|---|
+| `yarn start` | Expo dev server |
+| `yarn ios` / `yarn android` | Build and run natively |
+| `yarn typecheck` | `tsc --noEmit` |
+| `yarn lint` | ESLint over `src` and edge functions |
+| `yarn test` | Jest, 43 tests |
+| `yarn format` | Prettier |
+
+### Checks
 
 ```bash
-yarn start
+yarn typecheck && yarn lint && yarn test
 ```
 
-Open `config.js` and set your app name, bundle identifier and package name.
-Those last two are permanent once an app is published, so decide them before
-your first submission rather than after.
+All three pass on a fresh clone. The test suites are slow, and on a cold cache a
+first run can time out; re-run before investigating.
 
-## What's deliberately not here
+## Use it from Claude or ChatGPT
 
-**No Google or Apple sign-in.** Email auth only. If you offer any social login,
-Apple requires Sign in with Apple too, so this is a pair of things to add
-together rather than one.
+There's a free MCP server that plans an app before you build it: describe an
+idea and it tells you which parts belong in version one, which to defer, and
+which not to build at all, with the screens, data model and build order.
 
-**No payments.** No RevenueCat, no paywall, no entitlement checking. This is the
-part that takes the longest to get right, and the part where getting it wrong
-means either giving the product away or charging someone twice.
+```
+https://www.native.express/mcp
+```
 
-**No push, analytics or crash reporting.**
+Setup for Claude, Claude Code and ChatGPT is in
+**[docs/ai-connectors.md](docs/ai-connectors.md)**.
 
-Saying that plainly because a template that quietly stubs the expensive parts
-costs you more time than one that admits what it doesn't do. You'd find out in
-week two either way.
+## FAQ
 
-If your app has no accounts and sells nothing, you don't need this. Use
-`create-expo-app` and an afternoon will beat it.
+<details>
+<summary><b>Do I need to know React Native?</b></summary>
 
-## The paid version
+No. The point of `AGENTS.md` is that an agent can work in here without you
+knowing the conventions first. You will learn them by reading what it changes.
+</details>
 
-The pieces above are in [NativeExpress](https://www.native.express), along with
-AI features, the store submission guides, Figma listing templates and agent
-skills for this codebase. Same conventions and the same folder layout, so
-moving across is adding modules rather than switching template.
+<details>
+<summary><b>Is the anon key really safe in the app?</b></summary>
 
-## Support
+Yes. It identifies the project, not a user, and it is designed to ship to
+clients. What protects your data is row level security, which is why the
+migrations turn it on for every table. Never ship the *service role* key.
+</details>
 
-Use this as a template. Open an issue and I'll read it, though I'll be honest
-that support is for customers.
+<details>
+<summary><b>Can I use npm or pnpm instead of Yarn?</b></summary>
 
-Pull requests are welcome for bugs. I'm unlikely to merge new features, because
-a free template that grows features is a free template that stops being
-maintained.
+Yes, though the committed lockfile is Yarn's. Delete `yarn.lock` and install
+with your package manager of choice if you prefer.
+</details>
+
+<details>
+<summary><b>Why is the first native build so slow?</b></summary>
+
+It compiles every native dependency from source. Ten to twenty minutes is
+normal. Later builds reuse that work and take seconds.
+</details>
+
+<details>
+<summary><b>The confirmation email link does nothing.</b></summary>
+
+Almost always the `scheme` in `config.js` not matching the redirect URLs set in
+Supabase under **Authentication → URL Configuration**. Fix that before touching
+any code.
+</details>
+
+## Contributing
+
+Issues and pull requests are welcome. Please run `yarn typecheck && yarn lint &&
+yarn test` before opening one, and keep to the conventions in `AGENTS.md`.
 
 ## Licence
 
-MIT. Fork it into a different shape if this one is wrong for you.
+[MIT](LICENSE). Use it for anything, including commercial work. No attribution
+required.
