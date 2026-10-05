@@ -190,6 +190,11 @@ Three of those four cannot even be tested without a paid developer account. They
 are left out so you add them deliberately, not so you discover them halfway
 through.
 
+If you would rather start with them already wired, this template is the free
+core of [NativeExpress](https://www.native.express), a paid kit that adds Apple
+and Google sign in, RevenueCat paywalls, OneSignal push, PostHog analytics and
+Sentry.
+
 ## Project structure
 
 ```
