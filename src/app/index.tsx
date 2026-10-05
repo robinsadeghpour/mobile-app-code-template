@@ -11,5 +11,7 @@ import { useSession } from '@/hooks/useSession';
 export default function Index() {
   const { session } = useSession();
 
-  return <Redirect href={session ? '/(app)' : '/(public)/welcome'} />;
+  // `/(app)` alone is not a route: that group's index screen lives inside
+  // `(tabs)`, so the tab group has to be named or Expo Router rejects the href.
+  return <Redirect href={session ? '/(app)/(tabs)' : '/(public)/welcome'} />;
 }

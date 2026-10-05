@@ -4376,13 +4376,6 @@ expo-status-bar@~57.0.1:
   resolved "https://registry.yarnpkg.com/expo-status-bar/-/expo-status-bar-57.0.1.tgz#0a8ec1657fcd0987f9612ca411a0c3d002f0eaf0"
   integrity sha512-Xwaq1gAoVRWx5dPG5VhT5RSbnI9OilhZnO5qoPBnUaBAa5VzRzfdS8q0/bsPt0jR2DKLtGuP0bQ6efMJ4RIMDg==
 
-expo-superwall@^1.2.0:
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/expo-superwall/-/expo-superwall-1.5.0.tgz#5b2377d30fa6f68a9233dd73ece8e52a449fa2e8"
-  integrity sha512-ltM6oQawACw428yRFfHH/tuBWA9g/bWC7xNqLl7xxM4Va6D9bzGP2hKaARCubZPc/c/d5lcZqR14g/92RkhZBA==
-  dependencies:
-    zustand "^5.0.9"
-
 expo-symbols@^57.0.3:
   version "57.0.3"
   resolved "https://registry.yarnpkg.com/expo-symbols/-/expo-symbols-57.0.3.tgz#291f56d981d8271842aa0878b7e197c1793c1eef"
@@ -8988,8 +8981,3 @@ zod@^3.25.76:
   version "3.25.76"
   resolved "https://registry.yarnpkg.com/zod/-/zod-3.25.76.tgz#26841c3f6fd22a6a2760e7ccb719179768471e34"
   integrity sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==
-
-zustand@^5.0.9:
-  version "5.0.15"
-  resolved "https://registry.yarnpkg.com/zustand/-/zustand-5.0.15.tgz#42bddf35647cb80a818a8943a69f6618c126fcfe"
-  integrity sha512-MpSEjRiBkA9crSYeOUH32rJC7SVqAbm0Fqcqge/bUi2PPoLcBWKOsG+C8mevmpr8TwXHBVkChbbJiyvkE+i/3A==
